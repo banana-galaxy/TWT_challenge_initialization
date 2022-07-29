@@ -1,4 +1,4 @@
-#TWT challenge initialization
+# TWT challenge initialization
 
 This tiny project aims to simplify the process of organizing your twt weekly challenges directory and downloading Yantovis' test files.
 ___
@@ -40,8 +40,8 @@ You'll end up with a new folder which will look like this:
 ```
 `solution.py` will contain a python template for the challenge, and `get_tester.py` can be run to download Yantovis' tester for the challenge.
 
-##What if my organization system is different?
+## What if my organization system is different?
 You can still download `get_tester.py`, put it into the current challenge folder, run it, and it'll download the tester for you.
 
-##What about other languages?
+## What about other languages?
 Currently `new_challenge.py` can only make a python template. I might add an option for other language templates in the future.
