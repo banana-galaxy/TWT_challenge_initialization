@@ -40,6 +40,8 @@ You'll end up with a new folder which will look like this:
 ```
 `solution.py` will contain a python template for the challenge, and `get_tester.py` can be run to download Yantovis' tester for the challenge.
 
+---
+
 ## What if my organization system is different?
 You can still download `get_tester.py`, put it into the current challenge folder, run it, and it'll download the tester for you.
 
