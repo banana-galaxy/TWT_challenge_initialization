@@ -12,10 +12,13 @@ for _ in range(T):
 ''')
     with open(f"{name}/get_tester.py", 'w') as f:
         f.write(r'''import requests, os
-
-BASE_URL = "https://raw.githubusercontent.com/Pomroka/TWT_Challenges_Tester/main/Challenge_"
+from bs4 import BeautifulSoup as BS
+from tqdm import tqdm
 
 CHALLENGE_NUMBER = ''
+
+BASE_DOWNLOAD_URL = "https://raw.githubusercontent.com/Pomroka/TWT_Challenges_Tester/main/Challenge_"
+BASE_CHECK_URL = "https://github.com/Pomroka/TWT_Challenges_Tester/tree/main/Challenge_"
 
 if CHALLENGE_NUMBER == '':
     num_found = False
@@ -31,42 +34,35 @@ if CHALLENGE_NUMBER == '':
                 break
     CHALLENGE_NUMBER = CHALLENGE_NUMBER[::-1]
 
-files = [f"test_challenge_{CHALLENGE_NUMBER}.py", 'test_cases.json.gz', 'test_cases_b.json.gz']
-found_files = []
-for i in files:
-    if os.path.exists(i):
-        found_files.append(i)
 
-if len(found_files) > 0:
-    do_it = input(f"The following files have been found that WILL be overwritten: {[i for i in found_files]}\nDo you wish to continue? [Y/n] ")
-    if do_it in ['n', 'N']:
-        quit()
+def download(ffile):
+    with open(ffile, 'wb') as f:
+        f.write(requests.get(BASE_DOWNLOAD_URL+CHALLENGE_NUMBER+"/"+ffile).content)
 
-print("Looking for python file...")
-tester_content = requests.get(f'{BASE_URL+CHALLENGE_NUMBER}/test_challenge_{CHALLENGE_NUMBER}.py').content.decode('utf-8')
 
-if tester_content == "404: Not Found":
-    quit(f'Challenge {CHALLENGE_NUMBER} tester not yet published, please try again later.')
+def main():
+    files = BS(requests.get(BASE_CHECK_URL+CHALLENGE_NUMBER).content.decode('utf-8'), 'html.parser')
+    files = [i.text for i in files.find_all("a", class_="js-navigation-open Link--primary")]
+    if len(files) == 0:
+        quit(f"Challenge {CHALLENGE_NUMBER} has not been published yet. Please try again later.")
 
-print("Writing python file...")
-with open(f'test_challenge_{CHALLENGE_NUMBER}.py', 'w') as f:
-    f.write(tester_content)
+    found_files = []
+    for i in files:
+        if os.path.exists(i):
+            found_files.append(i)
 
-print("Writing test cases file...")
-with open(f'test_cases.json.gz', 'wb') as f:
-    f.write(requests.get(f'{BASE_URL+CHALLENGE_NUMBER}/test_cases.json.gz').content)
+    if len(found_files) > 0:
+        do_it = input(f"The following files have been found that WILL be overwritten: {[i for i in found_files]}\nDo you wish to continue? [Y/n] ")
+        if do_it in ['n', 'N']:
+            quit()
 
-print("Looking for big test cases file...")
-big_cases = 'test_cases_b.json.gz'
-big_cases_content = requests.get(f'{BASE_URL+CHALLENGE_NUMBER}/{big_cases}').content
+    print("\nDownloading files")
+    for i in tqdm(files):
+        download(i)
 
-try:
-    big_cases_content.decode('utf-8')
-    print("No big test cases available.")
-except UnicodeDecodeError:
-    print("Writing big test cases file...")
-    with open(big_cases, 'wb') as f:
-        f.write(big_cases_content)
+
+if __name__ == "__main__":
+    main()
 ''')
 
 
